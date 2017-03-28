@@ -53,134 +53,138 @@ PROJECT_NAME="$2"
 
 
 ################################################################################
+## Functions                                                                  ##
+################################################################################
+rename_helper()
+{
+    OLD=$1;
+    NEW=$2;
+
+    if [ -z "$OLD" ]; then
+        echo "[FATAL] Missing SOURCE_NAME."
+        exit 1;
+    fi;
+
+    if [ -z "$NEW" ]; then
+        echo "[FATAL] Missing TARGET_NAME.";
+        exit 1;
+    fi;
+
+    if [ "$OLD" == "$NEW" ]; then
+        echo "[Warning] Same name ($OLD). Skipping";
+    fi;
+
+    echo "----> Renaming:"
+    echo "      ($OLD)";
+    echo "      ($NEW)";
+    mv "$OLD" "$NEW";
+}
+
+replace_helper()
+{
+    ITEM=$1;
+    TO_BE_REPLACED=$2
+    REPlACE_WITH=$3
+
+    if [ -z "$ITEM" ]; then
+        echo "[FATAL] Missing FILENAME.";
+        exit 1;
+    fi;
+
+    if [ -z "$TO_BE_REPLACED" ]; then
+        echo "[FATAL] Missing TO_BE_REPLACED.";
+        exit 1;
+    fi;
+
+    if [ -z "$REPlACE_WITH" ]; then
+        echo "[FATAL] Missing REPlACE_WITH.";
+        exit 1;
+    fi;
+
+
+    ## Check if the item is an text file.
+    FILE_TYPE=$(file "$ITEM");
+    IS_ASCII=$(echo $FILE_TYPE | grep "ASCII");
+
+    if [ -z "$IS_ASCII" ]; then
+        echo "----> Not ASCII text file. Skipping...";
+        echo "      ($ITEM)";
+        return;
+    fi;
+
+    ## Check if need do anything...
+    NEEDS_REPLACE=$(cat "$ITEM" | grep "$TO_BE_REPLACED");
+    if [ -z "$NEEDS_REPLACE" ]; then
+        echo "----> File doesn't needs to be changed. Skipping...";
+        echo "      ($ITEM)";
+        return;
+    fi;
+
+    ## Replace the contents.
+    echo "----> File needs to be changed."
+    echo "      ($ITEM)";
+    sed --in-place="BACKUP" "s/$TO_BE_REPLACED/$REPlACE_WITH/g" "$ITEM"
+    rm "${ITEM}BACKUP";
+}
+
+replace_contents()
+{
+    ITEM=$1;
+    TO_BE_REPLACED=$2
+    REPlACE_WITH=$3
+
+    #Replace the upper case.
+    replace_helper "$ITEM" "$TO_BE_REPLACED" "$REPlACE_WITH";
+
+    #Replace the lower case.
+    TO_BE_REPLACED_LOWER=$(echo "$TO_BE_REPLACED" | tr [:upper:] [:lower:]);
+    REPLACE_WITH_LOWER=$(  echo "$REPlACE_WITH"   | tr [:upper:] [:lower:]);
+
+    replace_helper "$ITEM" "$TO_BE_REPLACED_LOWER" "$REPLACE_WITH_LOWER"
+}
+
+
+################################################################################
 ## Script                                                                     ##
 ################################################################################
+## Check if we have the needed info.
+if [ -z "$PROJECT_DIR" ]; then
+    echo "[FATAL] Missing project dir. Aborting...";
+    exit 1;
+fi;
+
+if [ -z "$PROJECT_NAME" ]; then
+    echo "[FATAL] Missing project name. Aborting...";
+    exit 1;
+fi;
+
+
+## Copy all the proj.platform to the project dir.
 cp -vr "$BOOTSTRAP_ROOT"/proj/* "$PROJECT_DIR/";
 
-
-# ################################################################################
-# ## Functions                                                                  ##
-# ################################################################################
-# rename_helper()
-# {
-#     OLD=$1;
-#     NEW=$2;
-
-#     if [ -z "$OLD" ]; then
-#         echo "[FATAL] Missing SOURCE_NAME."
-#         exit 1;
-#     fi;
-
-#     if [ -z "$NEW" ]; then
-#         echo "[FATAL] Missing TARGET_NAME.";
-#         exit 1;
-#     fi;
-
-#     if [ "$OLD" == "$NEW" ]; then
-#         echo "[Warning] Same name ($OLD). Skipping";
-#     fi;
-
-#     echo "----> Renaming:"
-#     echo "      ($OLD)";
-#     echo "      ($NEW)";
-#     mv "$OLD" "$NEW";
-# }
+## Change the CWD to ease the operations
+cd "$PROJECT_DIR";
+pwd;
 
 
-# replace_helper()
-# {
-#     ITEM=$1;
-#     TO_BE_REPLACED=$2
-#     REPlACE_WITH=$3
+## Start change the ocurrences of TITLE_PLACEHOLDER to
+## the actual project name.
+## Change the Filenames.
+echo "--> Changing Filenames";
+for ITEM in $(find . -not -path '*/\.*' -type f -iname "*TITLE_PLACEHOLDER*"); do
+    NEW_NAME=$(echo "$ITEM" | sed "s#TITLE_PLACEHOLDER#$PROJECT_NAME#");
+    rename_helper "$ITEM" "$NEW_NAME"
+done;
 
-#     if [ -z "$ITEM" ]; then
-#         echo "[FATAL] Missing FILENAME.";
-#         exit 1;
-#     fi;
-
-#     if [ -z "$TO_BE_REPLACED" ]; then
-#         echo "[FATAL] Missing TO_BE_REPLACED.";
-#         exit 1;
-#     fi;
-
-#     if [ -z "$REPlACE_WITH" ]; then
-#         echo "[FATAL] Missing REPlACE_WITH.";
-#         exit 1;
-#     fi;
+## Change the Foldernames.
+echo "--> Changing Foldernames";
+for ITEM in $(find . -not -path '*/\.*' -type d -iname "*TITLE_PLACEHOLDER*"); do
+    NEW_NAME=$(echo "$ITEM" | sed "s#TITLE_PLACEHOLDER#$PROJECT_NAME#");
+    rename_helper $ITEM $NEW_NAME
+done;
 
 
-#     ## Check if the item is an text file.
-#     FILE_TYPE=$(file "$ITEM");
-#     IS_ASCII=$(echo $FILE_TYPE | grep "ASCII");
-
-#     if [ -z "$IS_ASCII" ]; then
-#         echo "----> Not ASCII text file. Skipping...";
-#         echo "      ($ITEM)";
-#         return;
-#     fi;
-
-#     ## Check if need do anything...
-#     NEEDS_REPLACE=$(cat "$ITEM" | grep "$TO_BE_REPLACED");
-#     if [ -z "$NEEDS_REPLACE" ]; then
-#         echo "----> File doesn't needs to be changed. Skipping...";
-#         echo "      ($ITEM)";
-#         return;
-#     fi;
-
-#     ## Replace the contents.
-#     echo "----> File needs to be changed."
-#     echo "      ($ITEM)";
-#     sed --in-place="BACKUP" "s/$TO_BE_REPLACED/$REPlACE_WITH/g" "$ITEM"
-#     rm "${ITEM}BACKUP";
-# }
-
-# replace_contents()
-# {
-#     ITEM=$1;
-#     TO_BE_REPLACED=$2
-#     REPlACE_WITH=$3
-
-#     #Replace the upper case.
-#     replace_helper "$ITEM" "$TO_BE_REPLACED" "$REPlACE_WITH";
-
-#     #Replace the lower case.
-#     TO_BE_REPLACED_LOWER=$(echo "$TO_BE_REPLACED" | tr [:upper:] [:lower:]);
-#     REPLACE_WITH_LOWER=$(  echo "$REPlACE_WITH"   | tr [:upper:] [:lower:]);
-
-#     replace_helper "$ITEM" "$TO_BE_REPLACED_LOWER" "$REPLACE_WITH_LOWER"
-# }
-
-
-# ################################################################################
-# ## Change the CWD to the root of project as it'll
-# ## ease most of the operations.
-# ###############################################################################
-# cd $BOOTSTRAP_ROOT;
-# echo "Current Working Directory:";
-# echo "--> ($PWD)";
-
-
-# ################################################################################
-# ## Start change the ocurrences of TITLE_PLACEHOLDER to
-# ## the actual project name.
-# ################################################################################
-# ## Change the Filenames.
-# echo "--> Changing Filenames";
-# for ITEM in $(find . -not -path '*/\.*' -type f -iname "*TITLE_PLACEHOLDER*"); do
-#     NEW_NAME=$(echo "$ITEM" | sed "s#TITLE_PLACEHOLDER#$PROJECT_NAME#");
-#     rename_helper "$ITEM" "$NEW_NAME"
-# done;
-
-
-# ## Change the Foldernames.
-# echo "--> Changing Foldernames";
-# for ITEM in $(find . -not -path '*/\.*' -type d -iname "*TITLE_PLACEHOLDER*"); do
-#     NEW_NAME=$(echo "$ITEM" | sed "s#TITLE_PLACEHOLDER#$PROJECT_NAME#");
-#     rename_helper $ITEM $NEW_NAME
-# done;
-
-
-# ## Next change the contents of the Files.
-# for ITEM in $(find . -not -path '*/\.*' -not -path './cocos2d/*' -and -not -path './BootstrapScripts/*' -type f ); do
-#     replace_contents $ITEM "TITLE_PLACEHOLDER" "$PROJECT_NAME";
-# done;
+## Next change the contents of the Files.
+for ITEM in $(find . -not -path '*/\.*' -not -path './cocos2d/*' -and -not -path './BootstrapScripts/*' -type f ); do
+    replace_contents $ITEM "TITLE_PLACEHOLDER" "$PROJECT_NAME";
+done;
