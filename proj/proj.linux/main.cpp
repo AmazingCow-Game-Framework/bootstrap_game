@@ -1,15 +1,13 @@
-#include "../Classes/AppDelegate.h"
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <string>
 
+//Usings
 USING_NS_CC;
 
+
+////////////////////////////////////////////////////////////////////////////////
+// Linux Entry Point                                                          //
+////////////////////////////////////////////////////////////////////////////////
 int main(int argc, char **argv)
 {
-    // create the application instance
-    AppDelegate app;
     return Application::getInstance()->run();
 }
