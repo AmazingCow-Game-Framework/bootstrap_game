@@ -80,8 +80,10 @@ fi;
 $SCRIPT_DIR/create_dirs.sh            "$PROJECT_DIR"                  && \
 $SCRIPT_DIR/clone_amazingcow_libs.sh  "$PROJECT_DIR"                  && \
 $SCRIPT_DIR/clone_cocos2dx.sh         "$PROJECT_DIR"                  && \
+$SCRIPT_DIR/setup_cch.sh              "$PROJECT_DIR" "$PROJECT_NAME"  && \
 $SCRIPT_DIR/setup_projs.sh            "$PROJECT_DIR" "$PROJECT_NAME"  && \
 $SCRIPT_DIR/setup_qtcreator.sh        "$PROJECT_DIR" "$PROJECT_NAME"  && \
-$SCRIPT_DIR/create_info_files.sh      "$PROJECT_DIR" "$PROJECT_NAME";
+$SCRIPT_DIR/create_info_files.sh      "$PROJECT_DIR" "$PROJECT_NAME"  && \
+$SCRIPT_DIR/copy_cocos_meta.sh        "$PROJECT_DIR"
 
 
