@@ -76,6 +76,17 @@ if [ -z "$PROJECT_NAME" ]; then
     exit 1;
 fi;
 
+
+## Change the CWD to project directory to ease the operations.
+cd "$PROJECT_DIR";
+
+## Initialize git if not already initialized.
+git status;
+if [ $? != 0 ]; then
+    git init;
+fi;
+
+
 ## Call the bootstrap sequence.
 $SCRIPT_DIR/create_dirs.sh            "$PROJECT_DIR"                  && \
 $SCRIPT_DIR/clone_amazingcow_libs.sh  "$PROJECT_DIR"                  && \
@@ -87,3 +98,6 @@ $SCRIPT_DIR/create_info_files.sh      "$PROJECT_DIR" "$PROJECT_NAME"  && \
 $SCRIPT_DIR/copy_cocos_meta.sh        "$PROJECT_DIR"
 
 
+## Make the first commit.
+git add .;
+git commit -m "[BOOTSTRAP_GAME INIT]";
