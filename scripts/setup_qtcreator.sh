@@ -84,7 +84,9 @@ for QTFILE in $(ls -1 QT_CREATOR_PROJECT*); do
 done;
 
 ## Finally replace the Path in the .creator.user file.
-sed -iBACK "s#QT_CREATOR_PROJECT_PATH#$PROJECT_ABS_DIR#" "$FILE_DOT_CREATOR_USER"
+sed -iBACK "s#QT_CREATOR_PROJECT_PATH#$PROJECT_ABS_DIR#g" "$FILE_DOT_CREATOR_USER"
+rm -rfv *BACK
+sed -iBACK "s#QT_CREATOR_EXEC_PATH#$PROJECT_ABS_DIR/bin/debug/linux/$PROJECT_NAME#g" "$FILE_DOT_CREATOR_USER"
 rm -rfv *BACK
 
 ## Now we need fill the .includes and .files files with the directories and
