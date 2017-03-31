@@ -63,10 +63,13 @@ cd "$PROJECT_DIR/Sources/lib";
 MF_URL="https://github.com/AmazingCow-Game-Framework/MonsterFramework"
 git submodule add "$MF_URL"
 
-# CoreRandom ##
+## CoreRandom ##
 CORERANDOM_URL="https://github.com/AmazingCow-Game-Core/CoreRandom"
 git submodule add "$CORERANDOM_URL"
 
+## bootstrap_splashscreen ##
+SPLASHSCREEN_URL="https://github.com/AmazingCow-Game-Framework/bootstrap_splashscren"
+git submodule add "$SPLASHSCREEN_URL"
 
 ## Update anything that needs.
 git submodule update --init --recursive
