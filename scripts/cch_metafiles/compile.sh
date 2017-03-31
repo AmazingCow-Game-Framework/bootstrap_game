@@ -53,7 +53,7 @@ IS_TO_UPDATE_BUILD_NO="0";
 ################################################################################
 ## Update the Game Sources                                                    ##
 ################################################################################
-find ./Classes -iname "*.c*" |  \
+find ./Sources -iname "*.c*" |  \
 sed 's/\.\///g'              >  \
 ./compile_definitions/game_sources.txt
 
