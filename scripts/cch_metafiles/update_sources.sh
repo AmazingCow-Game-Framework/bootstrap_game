@@ -3,7 +3,7 @@
 ##               █      █                                                     ##
 ##               ████████                                                     ##
 ##             ██        ██                                                   ##
-##            ███  █  █  ███        compile.sh                                ##
+##            ███  █  █  ███        update_sources.sh                         ##
 ##            █ █        █ █        bootstrap_game                            ##
 ##             ████████████                                                   ##
 ##           █              █       Copyright (c) 2017                        ##
@@ -42,69 +42,35 @@
 ################################################################################
 ## Vars                                                                       ##
 ################################################################################
-SCRIPT_DIR="CCH";
-CURRENT_DIR=$(pwd)
-GAME_NAME="PROJECT_NAME_PLACEHOLDER"
+DEFINITIONS_DIR="compile_definitions";
 
-IS_TO_COPY_RESOURCES="0";
-IS_TO_UPDATE_BUILD_NO="0";
-
+ALL_SOURCES=$(find ./Sources -iname "*.c*");
+TO_EXCLUDE=$(cat $DEFINITIONS_DIR/paths_to_exclude_from_compile.txt);
+EXCLUDED_SOURCES="";
 
 ################################################################################
-## Update the Game Sources                                                    ##
+## Script                                                                     ##
 ################################################################################
-./update_sources.sh
+## Clean up the previous sources.
+echo "" > "$DEFINITIONS_DIR/game_sources.txt"
+
+## Find all sources files and check if them aren't
+## to be exclude. If not add them to the game_sources.txt
+for FILENAME in $ALL_SOURCES; do
+    for EXCLUDE in $TO_EXCLUDE; do
+        MATCH=$(echo $FILENAME | fgrep $EXCLUDE);
+        if [ -z $MATCH ]; then
+            echo $FILENAME >> "$DEFINITIONS_DIR/game_sources.txt";
+            break;
+        else
+            EXCLUDED_SOURCES+="$MATCH ";
+        fi;
+    done;
+done;
 
 
-################################################################################
-## Copy the Resources                                                         ##
-################################################################################
-if [ "$IS_TO_COPY_RESOURCES" != "0" ]; then
-    ./copy_resources.sh
-fi;
-
-
-################################################################################
-## Update the Build Number                                                    ##
-################################################################################
-if [ "$IS_TO_UPDATE_BUILD_NO" != "0" ]; then
-    ./update_build_no.sh
-fi;
-
-
-################################################################################
-## CMAKE                                                                      ##
-################################################################################
-$SCRIPT_DIR/update_cmake.py                                                    \
-    --game-name=$GAME_NAME                                                     \
-    --working-dir=$CURRENT_DIR                                                 \
-    --game-sources=$CURRENT_DIR/compile_definitions/game_sources.txt           \
-    --include-dirs=$CURRENT_DIR/compile_definitions/include_directories.txt    \
-    --android-defs=$CURRENT_DIR/compile_definitions/android_definitions.txt    \
-    --linux-defs=$CURRENT_DIR/compile_definitions/linux_definitions.txt
-
-if [ "$?" != "0" ]; then
-    echo "Update CMakeLists.txt error.";
-    exit 1;
-fi;
-
-
-################################################################################
-## Android MK                                                                 ##
-################################################################################
-$SCRIPT_DIR/update_androidmk.py                                                \
-    --game-name=$GAME_NAME                                                     \
-    --working-dir=$CURRENT_DIR/                                                \
-    --game-sources=$CURRENT_DIR/compile_definitions/game_sources.txt           \
-    --include-dirs=$CURRENT_DIR/compile_definitions/include_directories.txt    \
-
-if [ "$?" != "0" ]; then
-    echo "Update Android.mk error.";
-    exit 1;
-fi;
-
-
-################################################################################
-## Compile                                                                    ##
-################################################################################
-$SCRIPT_DIR/compilecocos.sh $@
+## Log the excluded sources...
+echo "Excluded sources:"
+for FILENAME in $EXCLUDED_SOURCES; do
+    echo $FILENAME;
+done;
