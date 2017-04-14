@@ -44,5 +44,6 @@
 ## bootstrap_splashscene                                                      ##
 ################################################################################
 ## Copy the boostrap_splashscene Resources.
+mkdir -p ./Resources/bootstrap_splashscreen
 cp -vr ./Sources/lib/bootstrap_splashscreen/spritesheet ./Resources/bootstrap_splashscreen
 cp -vr ./Sources/lib/bootstrap_splashscreen/sounds      ./Resources/bootstrap_splashscreen
